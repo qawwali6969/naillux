@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block page_title %}Дашборд{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="icon">📊</div>
+        <div class="label">Записей сегодня</div>
+        <div class="value">{{ today_bookings }}</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="icon">💰</div>
+        <div class="label">Выручка сегодня</div>
+        <div class="value">{{ "{:,}".format(today_revenue) }}₽</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="icon">👥</div>
+        <div class="label">Всего клиентов</div>
+        <div class="value">{{ total_users }}</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="icon">📅</div>
+        <div class="label">Активных записей</div>
+        <div class="value">{{ active_bookings }}</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">📋 Последние записи</div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Дата</th>
+                <th>Время</th>
+                <th>Клиент</th>
+                <th>Услуга</th>
+                <th>Статус</th>
+                <th>Цена</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in recent_bookings %}
+            <tr>
+                <td>#{{ booking.id }}</td>
+                <td>{{ booking.date }}</td>
+                <td>{{ booking.time }}</td>
+                <td>{{ booking.first_name }} {% if booking.username %}@{{ booking.username }}{% endif %}</td>
+                <td>{{ services.get(booking.service_id, {}).get('name', 'N/A') }}</td>
+                <td>
+                    {% if booking.status == 'active' %}
+                        <span class="badge badge-success">Активна</span>
+                    {% else %}
+                        <span class="badge badge-danger">Отменена</span>
+                    {% endif %}
+                </td>
+                <td>{{ "{:,}".format(services.get(booking.service_id, {}).get('price', 0)) }}₽</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

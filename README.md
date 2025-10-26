@@ -13,10 +13,16 @@ Production-ready Telegram bot for nail salon with voice message support, AI assi
 - **Multi-language Support**: Russian language interface
 
 ### Admin Features
+- **Separate Admin Bot**: Dedicated Telegram bot for administrators ([@naillux_admin_bot](ADMIN_SETUP.md))
+- **Web Admin Panel**: Full-featured dashboard with statistics and charts
+- **Group Notifications**: Automatic alerts to private Telegram group
 - **Today's Bookings**: View all bookings for the day with revenue
+- **Weekly/Monthly Stats**: Financial reports and analytics
+- **Client Database**: Track all clients and their visit history
 - **Broadcast**: Send messages to all users
-- **Statistics**: Track users, bookings, and activity
 - **Google Sheets Sync**: All bookings automatically synced to spreadsheet
+
+**→ [Admin Panel Setup Guide](ADMIN_SETUP.md)** - Complete instructions for admin system
 
 ### Services Catalog
 

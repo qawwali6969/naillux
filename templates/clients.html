@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block page_title %}Клиенты{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">👥 База клиентов ({{ clients|length }})</div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Имя</th>
+                <th>Username</th>
+                <th>Телефон</th>
+                <th>Визитов</th>
+                <th>Последний визит</th>
+                <th>Регистрация</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for client in clients %}
+            <tr>
+                <td>{{ client.user_id }}</td>
+                <td>{{ client.first_name }}</td>
+                <td>{% if client.username %}@{{ client.username }}{% else %}-{% endif %}</td>
+                <td>{{ client.phone or '-' }}</td>
+                <td><strong>{{ client.total_bookings }}</strong></td>
+                <td>{{ client.last_visit or '-' }}</td>
+                <td>{{ client.created_at }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

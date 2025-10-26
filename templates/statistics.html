@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block page_title %}Статистика{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">📈 Выручка по месяцам</div>
+    <canvas id="revenueChart" style="max-height: 300px;"></canvas>
+</div>
+
+<div class="card">
+    <div class="card-header">🔥 Популярные услуги</div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Услуга</th>
+                <th>Количество</th>
+                <th>Цена</th>
+                <th>Выручка</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stat in service_stats %}
+            <tr>
+                <td>{{ services.get(stat.service_id, {}).get('name', 'N/A') }}</td>
+                <td><strong>{{ stat.count }}</strong></td>
+                <td>{{ "{:,}".format(services.get(stat.service_id, {}).get('price', 0)) }}₽</td>
+                <td><strong>{{ "{:,}".format(services.get(stat.service_id, {}).get('price', 0) * stat.count) }}₽</strong></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+const ctx = document.getElementById('revenueChart').getContext('2d');
+const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ monthly_revenue.keys()|list|tojson }},
+        datasets: [{
+            label: 'Выручка (₽)',
+            data: {{ monthly_revenue.values()|list|tojson }},
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {display: true}
+        }
+    }
+});
+</script>
+{% endblock %}

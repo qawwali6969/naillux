@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block page_title %}Записи{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">📅 Все записи ({{ bookings|length }})</div>
+
+    <form method="GET" style="margin-bottom: 20px; display: flex; gap: 10px;">
+        <input type="date" name="date" value="{{ date_filter }}" style="padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+        <select name="status" style="padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+            <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Все статусы</option>
+            <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Активные</option>
+            <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Отмененные</option>
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm">Фильтр</button>
+    </form>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Дата</th>
+                <th>Время</th>
+                <th>Клиент</th>
+                <th>Телефон</th>
+                <th>Услуга</th>
+                <th>Цена</th>
+                <th>Статус</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+            <tr>
+                <td>#{{ booking.id }}</td>
+                <td>{{ booking.date }}</td>
+                <td>{{ booking.time }}</td>
+                <td>{{ booking.first_name }} {% if booking.username %}@{{ booking.username }}{% endif %}</td>
+                <td>{{ booking.phone or '-' }}</td>
+                <td>{{ services.get(booking.service_id, {}).get('name', 'N/A') }}</td>
+                <td>{{ "{:,}".format(services.get(booking.service_id, {}).get('price', 0)) }}₽</td>
+                <td>
+                    {% if booking.status == 'active' %}
+                        <span class="badge badge-success">✓ Активна</span>
+                    {% else %}
+                        <span class="badge badge-danger">✗ Отменена</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if booking.status == 'active' %}
+                        <button class="btn btn-danger btn-sm" onclick="cancelBooking({{ booking.id }})">Отменить</button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function cancelBooking(id) {
+    if (confirm('Отменить запись #' + id + '?')) {
+        fetch('/api/booking/' + id + '/cancel', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert('Запись отменена');
+            location.reload();
+        })
+        .catch(error => alert('Ошибка: ' + error));
+    }
+}
+</script>
+{% endblock %}

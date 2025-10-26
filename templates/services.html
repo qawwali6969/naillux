@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block page_title %}Услуги{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">💅 Каталог услуг ({{ services|length }})</div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th>Категория</th>
+                <th>Цена</th>
+                <th>Длительность</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for id, service in services.items() %}
+            <tr>
+                <td><code>{{ id }}</code></td>
+                <td>{{ service.name }}</td>
+                <td>{{ service.category }}</td>
+                <td><strong>{{ "{:,}".format(service.price) }}₽</strong></td>
+                <td>{{ service.duration }} мин</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -56,6 +56,7 @@ BOT_TOKEN = os.getenv('BOT_TOKEN')
 ADMIN_IDS = [int(id.strip()) for id in os.getenv('ADMIN_IDS', '').split(',') if id.strip()]
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+NOTIFICATION_GROUP_ID = os.getenv('NOTIFICATION_GROUP_ID', '')  # Telegram group for notifications
 
 # Configure APIs
 openai.api_key = OPENAI_API_KEY
@@ -587,6 +588,25 @@ def update_booking_status_in_sheets(booking_id: int, status: str):
         logger.error(f"Failed to update booking status in Google Sheets: {e}")
 
 # ============================================================================
+# NOTIFICATION FUNCTIONS
+# ============================================================================
+
+async def send_group_notification(context: ContextTypes.DEFAULT_TYPE, message: str, parse_mode: str = 'HTML'):
+    """Send notification to admin group"""
+    if not NOTIFICATION_GROUP_ID:
+        return
+
+    try:
+        await context.bot.send_message(
+            chat_id=NOTIFICATION_GROUP_ID,
+            text=message,
+            parse_mode=parse_mode
+        )
+        logger.info("Notification sent to admin group")
+    except Exception as e:
+        logger.error(f"Failed to send group notification: {e}")
+
+# ============================================================================
 # HELPER FUNCTIONS
 # ============================================================================
 
@@ -1085,8 +1105,21 @@ async def confirm_booking(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Sync to Google Sheets
     sync_booking_to_sheets(booking_id, user_id, service_id, date, time)
 
-    # Send confirmation
+    # Send notification to admin group
+    user = query.from_user
     service = SERVICES[service_id]
+    notification_text = f"""🎉 <b>Новая запись!</b>
+
+👤 {user.first_name} {'@' + user.username if user.username else ''}
+💅 {service['name']}
+📅 {format_date(date)} в {time}
+💰 {service['price']:,}₽
+
+ID записи: #{booking_id}"""
+
+    await send_group_notification(context, notification_text)
+
+    # Send confirmation
 
     confirmation_message = f"""✅ Отлично! Вы записаны!
 
@@ -1171,11 +1204,30 @@ async def confirm_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     booking_id = context.user_data.get('cancel_booking_id')
 
+    # Get booking info before cancellation for notification
+    bookings = get_user_bookings(query.from_user.id)
+    booking_info = next((b for b in bookings if b[0] == booking_id), None)
+
     # Cancel booking
     cancel_booking(booking_id)
 
     # Update Google Sheets
     update_booking_status_in_sheets(booking_id, 'cancelled')
+
+    # Send notification to admin group
+    if booking_info:
+        _, service_id, date, time = booking_info
+        service = SERVICES.get(service_id, {})
+        user = query.from_user
+        notification_text = f"""⚠️ <b>Запись отменена</b>
+
+👤 {user.first_name} {'@' + user.username if user.username else ''}
+💅 {service.get('name', 'N/A')}
+📅 {format_date(date)} в {time}
+
+ID записи: #{booking_id}"""
+
+        await send_group_notification(context, notification_text)
 
     await query.edit_message_text(
         "✅ Запись отменена\n\nБуду рада видеть вас снова! 💅\nКогда захотите записаться — я здесь 😊",
