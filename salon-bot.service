@@ -1,0 +1,15 @@
+[Unit]
+Description=Nail Lux Telegram Bot
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/salon-bot
+Environment="PATH=/opt/salon-bot/venv/bin"
+ExecStart=/opt/salon-bot/venv/bin/python3 /opt/salon-bot/bot.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

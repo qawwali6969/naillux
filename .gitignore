@@ -205,3 +205,24 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# ============================================================================
+# Nail Lux Bot Specific Files
+# ============================================================================
+
+# Google Service Account credentials (contains secrets)
+credentials.json
+
+# SQLite database (local data)
+salon_bot.db
+*.sqlite
+
+# Voice files (temporary)
+voice_*.ogg
+voice_*.mp3
+voice_*.wav
+
+# Backup files
+*.backup
+*.bak
+backups/
